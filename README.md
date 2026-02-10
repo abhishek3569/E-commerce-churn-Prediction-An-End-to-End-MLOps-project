@@ -27,7 +27,8 @@ Production-ready MLOps pipeline for predicting customer churn in e-commerce usin
 
 ## 🏗️ Architecture
 
-[Insert architecture diagram here]
+<img width="4170" height="2985" alt="mlops_platform_architecture" src="https://github.com/user-attachments/assets/19430f70-a7c4-4eba-82e3-51cbdb711658" />
+
 
 **Technology Stack:**
 - **ML Framework**: Scikit-learn, XGBoost, LightGBM
