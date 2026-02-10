@@ -1,3 +1,4 @@
+HEAD
 # E-commerce Customer Churn Prediction - MLOps Pipeline
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
@@ -212,3 +213,93 @@ pytest tests/test_api.py
 
 MIT License - see [LICENSE](LICENSE) file
 
+
+# E-commerce Churn Prediction - MLOps Pipeline
+
+Production-ready batch ML pipeline for e-commerce customer churn prediction with full MLOps stack: data generation, feature engineering, model training, experiment tracking, deployment, and monitoring.
+
+## Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Generate synthetic data (100K customers)
+python data/synthetic_data_generator.py --n_customers 100000
+
+# 3. Feature engineering (use latest CSV in data/raw)
+python -c "
+from pathlib import Path
+from src.features.feature_engineering import engineer_features
+latest = max(Path('data/raw').glob('customers_*.csv'), key=lambda p: p.stat().st_mtime)
+engineer_features(latest)
+"
+
+# 4. Start MLflow and train models
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns &
+export MLFLOW_TRACKING_URI=http://localhost:5000
+python -m src.models.train
+
+# 5. Run the API
+uvicorn src.serving.api:app --port 8000
+```
+
+## Project Structure
+
+```
+ecommerce-churn-mlops/
+├── data/                    # Raw and processed data
+│   ├── raw/                 # Generated CSVs
+│   ├── processed/           # Features, pipeline, model artifacts
+│   └── synthetic_data_generator.py
+├── src/
+│   ├── config.py            # Pydantic configuration
+│   ├── features/            # Feature engineering + validation
+│   ├── models/              # Training, evaluation, registry
+│   ├── serving/             # FastAPI API + schemas
+│   └── monitoring/          # Drift detection, metrics
+├── airflow/dags/            # Data gen, training, monitoring DAGs
+├── infrastructure/          # Dockerfiles, Prometheus config
+├── tests/
+└── docs/
+```
+
+## Documentation
+
+- **[Architecture](docs/architecture.md)** – System design, data flow, technology stack
+- **[Setup](docs/setup.md)** – Prerequisites, Docker, local development
+- **[API](docs/api_documentation.md)** – Endpoint specs, request/response examples
+
+## Key Features
+
+- **Synthetic data**: 100K realistic customer records with churn correlations
+- **Feature engineering**: RFM, engagement, satisfaction scores; one-hot encoding; scaling
+- **Models**: Logistic Regression, Random Forest, XGBoost, LightGBM with MLflow tracking
+- **Model registry**: Promotion workflow (Staging → Production), validation, rollback
+- **API**: FastAPI with `/predict`, `/predict_batch`, health, metrics
+- **Monitoring**: PSI drift detection, Prometheus metrics, Grafana dashboards
+- **Orchestration**: 3 Airflow DAGs (daily data gen, weekly training, daily monitoring)
+
+## Success Criteria
+
+- [x] Pipeline runs end-to-end
+- [x] Models logged to MLflow with AUC-ROC tracking
+- [x] API responds with predictions and Prometheus metrics
+- [x] Drift detection (PSI) and monitoring module
+- [x] Model promotion validation
+- [x] Tests and documentation
+
+## Run Tests
+
+```bash
+pytest tests/ -v
+```
+
+## Docker
+
+```bash
+docker compose up -d
+```
+
+See [docs/setup.md](docs/setup.md) for service ports and configuration.
+284de54 (Initial commit)
